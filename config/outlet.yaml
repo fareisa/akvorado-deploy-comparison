@@ -1,31 +1,67 @@
 ---
+kafka:
+  consumer-group: wahaha-group
+
 metadata:
   providers:
     - type: snmp
       credentials:
         ::/0:
-          communities: public
-routing:
-  provider:
-    type: bmp
+          communities: 
+            - public    
+# routing:
+#   provider:
+#     type: none
     # Before increasing this value, look for it in the troubleshooting section
     # of the documentation.
-    receive-buffer: 212992
+    # receive-buffer: 212992
 core:
-  exporter-classifiers:
+  default-sampling-rate: 1
+  exporter-classifiers: 
     # This is an example. This should be customized depending on how
     # your exporters are named.
-    - ClassifySiteRegex(Exporter.Name, "^([^-]+)-", "$1")
-    - ClassifyRegion("europe")
-    - ClassifyTenant("acme")
-    - ClassifyRole("edge")
+    - ClassifySite('wahaha-lab1')
+    - ClassifyRegion("rumah")
+    # - ClassifySiteRegex(Exporter.Name, "^([^-]+)-", "$1")
+    # - ClassifyRegion("europe")
+    # - ClassifyTenant("acme")
+    # - ClassifyRole("edge")
   interface-classifiers:
+    - |
+      ClassifyConnectivityRegex(
+        Interface.Name,
+        "^(ether1|eth0|enp0s31f6|nic1|nic0)$",
+        "WAN"
+      ) &&
+      ClassifyProviderRegex(Interface.Description, "^(.*)$", "$1") &&
+      ClassifyExternal()
+
+    - |
+      ClassifyConnectivityRegex(
+        Interface.Name,
+        "^(wg.*)$",
+        "wireguard"
+      ) &&
+      ClassifyInternal()
+
+    - |
+      ClassifyConnectivityRegex(
+        Interface.Name,
+        "^(tailscale.*)$",
+        "tailscale"
+      ) &&
+      ClassifyInternal()
+
+    - | 
+      ClassifyConnectivity("LAN") &&
+      ClassifyInternal()
     # This is an example. This must be customized depending on the
     # descriptions of your interfaces. In the following, we assume
     # external interfaces are named "Transit: Cogent" Or "IX:
     # FranceIX".
-    - |
-      ClassifyConnectivityRegex(Interface.Description, "^(?i)(transit|pni|ppni|ix):? ", "$1") &&
-      ClassifyProviderRegex(Interface.Description, "^\\S+?\\s(\\S+)", "$1") &&
-      ClassifyExternal()
-    - ClassifyInternal()
+    # - ClassifyInternal()
+    # - |
+    #   ClassifyConnectivityRegex(Interface.Description, "^(?i)(transit|pni|ppni|ix):? ", "$1") &&
+    #   ClassifyProviderRegex(Interface.Description, "^\\S+?\\s(\\S+)", "$1") &&
+    #   ClassifyExternal()
+    # - ClassifyInternal()

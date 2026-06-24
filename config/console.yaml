@@ -1,4 +1,14 @@
 ---
+homepage-top-widgets: [src-as, src-country, src-port, dst-port, exporter]
+homepage-graph-timerange: 1h
+default-visualize-options:
+  graph-type: sankey
+  start: 1 hours ago
+  end: now
+  filter: InIfBoundary = external
+  dimensions:
+    - ExporterSite
+    - ExporterName
 http:
   cache:
     type: redis
@@ -7,10 +17,10 @@ database:
   saved-filters:
     # These are prepopulated filters you can select in a drop-down
     # menu. Users can add more filters interactively.
-    - description: "From Netflix"
-      content: >-
-        InIfBoundary = external AND SrcAS = AS2906
-    - description: "From GAFAM"
-      content: >-
-        InIfBoundary = external AND
-        SrcAS IN (AS15169, AS16509, AS32934, AS6185, AS8075)
+    # - description: "From Netflix"
+    #   content: >-
+    #     InIfBoundary = external AND SrcAS = AS2906
+    # - description: "From GAFAM"
+    #   content: >-
+    #     InIfBoundary = external AND
+    #     SrcAS IN (AS15169, AS16509, AS32934, AS6185, AS8075)

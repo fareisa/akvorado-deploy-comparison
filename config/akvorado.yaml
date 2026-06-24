@@ -15,10 +15,11 @@
 kafka:
   topic: flows
   brokers:
-    - kafka:9092
+    - lab1:9092
+    - lab2:9092
   topic-configuration:
     num-partitions: 8
-    replication-factor: 1
+    replication-factor: 2
     config-entries:
       # The retention policy in Kafka is mainly here to keep a buffer
       # for ClickHouse.
@@ -43,44 +44,128 @@ geoip:
   # - /usr/share/GeoIP/GeoLite2-Country.mmdb
 
 clickhousedb:
-  servers:
-    - clickhouse:9000
+  servers: 247.16.14.1:9000
+  username: "default"
+  password: "sjnb2u3v24ghb"
+  cluster: "lab_cluster"
+  database: "netflow"
 
 clickhouse:
-  orchestrator-url: http://akvorado-orchestrator:8080
+  orchestrator-url: http://orchestrator.akvorado.local:4670
   prometheus-endpoint: /metrics
   asns:
-    64501: ACME Corporation
+    64512: rumah network
+    64513: kos network
+    64514: wireguard network
+    64515: tailscale network
   networks:
-    # You should customize this section with your networks. This
+      # You should customize this section with your networks. This
     # populates the Src/DstNetName/Role/Site/Region/Tenant fields.
-    192.0.2.0/24:
-      name: ipv4-customers
-      role: customers
-    203.0.113.0/24:
-      name: ipv4-servers
-      role: servers
-    2a01:db8:cafe:1::/64:
-      name: ipv6-customers
-      role: customers
-    2a01:db8:cafe:2::/64:
-      name: ipv6-servers
-      role: servers
-  network-sources: []
+    # 192.0.2.0/24:
+    #   name: ipv4-customers
+    #   role: customers
+    # 203.0.113.0/24:
+    #   name: ipv4-servers
+    #   role: servers
+    # 2a01:db8:cafe:1::/64:
+    #   name: ipv6-customers
+    #   role: customers
+    # 2a01:db8:cafe:2::/64:
+    #   name: ipv6-servers
+    #   role: servers
 
-  # network-sources:
-    # amazon:
-    #   url: https://ip-ranges.amazonaws.com/ip-ranges.json
-    #   interval: 6h
-    #   transform: |
-    #     (.prefixes + .ipv6_prefixes)[] |
-    #     { prefix: (.ip_prefix // .ipv6_prefix), tenant: "amazon", region: .region, role: .service|ascii_downcase }
-    # gcp:
-    #   url: https://www.gstatic.com/ipranges/cloud.json
-    #   interval: 6h
-    #   transform: |
-    #     .prefixes[] |
-    #     { prefix: (.ipv4Prefix // .ipv6Prefix), tenant: "google-cloud", region: .scope }
+    192.168.1.0/24:
+      name: ipv4-nethome
+      role: isp
+      site: kos
+      asn: 64513
+      country: ID 
+      state: Jakata Selatan
+      city: Ragunan
+    192.168.100.0/24:
+      name: ipv4-xl-home
+      role: isp
+      site: rumah    
+      asn: 64512
+      country: ID
+      state: Jawa Barat
+      city: Kab Sukabumi
+    192.168.11.0/24:
+      name: ipv4-server-1
+      role: server
+      site: rumah
+      asn: 64512
+      country: ID
+      state: Jawa Barat
+      city: Kab Sukabumi
+    192.168.12.0/24:
+      name: ipv4-server-2
+      role: server
+      site: rumah
+      asn: 64512
+      country: ID
+      state: Jawa Barat
+      city: Kab Sukabumi
+    172.16.10.0/24:
+      name: ipv4-wifi-rumah
+      role: wifi
+      site: rumah
+      asn: 64512
+      country: ID
+      state: Jawa Barat
+      city: Kab Sukabumi
+    172.16.20.0/24:
+      name: ipv4-wifi-p2p
+      role: wifi
+      site: rumah
+      asn: 64512
+      country: ID
+      state: Jawa Barat
+      city: Kab Sukabumi
+
+    10.8.0.0/24:
+      name: ipv4-wireguard
+      role: tunnel
+      asn: 64514
+      country: ID
+
+    100.93.213.53/32:
+      name: ipv4-tailscale-lab1
+      role: tunnel
+      site: rumah
+      asn: 64515
+      country: ID
+    100.86.1.12/32:
+      name: ipv4-tailscale-lab2
+      role: tunnel
+      site: kos
+      asn: 64515
+      country: ID
+
+  resolutions:
+    - interval: 0
+      ttl: 168h
+    - interval: 1m
+      ttl: 168h
+    - interval: 5m
+      ttl: 360h
+    - interval: 1h
+      ttl: 720h      
+
+  # network-sources: []
+  network-sources:
+    amazon:
+      url: https://ip-ranges.amazonaws.com/ip-ranges.json
+      interval: 6h
+      transform: |
+        (.prefixes + .ipv6_prefixes)[] |
+        { prefix: (.ip_prefix // .ipv6_prefix), tenant: "amazon", region: .region, role: .service|ascii_downcase }
+    gcp:
+      url: https://www.gstatic.com/ipranges/cloud.json
+      interval: 6h
+      transform: |
+        .prefixes[] |
+        { prefix: (.ipv4Prefix // .ipv6Prefix), tenant: "google-cloud", region: .scope }
     # netbox:
     #   url: "https://netbox.domain.tld/api/ipam/prefixes/?limit=0"
     #   interval: 6h
@@ -96,13 +181,13 @@ clickhouse:
     #       role: .role.name,
     #       name: .description
     #     }
-    # nerd-scan:
-    #   url: https://nerd.cesnet.cz/nerd/data/bl_scan.txt
-    #   parser: plain
-    #   interval: 24h
-    #   transform: |
-    #     .[] | select(startswith("#") | not) |
-    #     { prefix: . + "/32", tenant: "nerd", role: "nerd-scan" }
+    nerd-scan:
+      url: https://nerd.cesnet.cz/nerd/data/bl_scan.txt
+      parser: plain
+      interval: 24h
+      transform: |
+        .[] | select(startswith("#") | not) |
+        { prefix: . + "/32", tenant: "nerd", role: "nerd-scan" }
 
 inlet: !include "inlet.yaml"
 outlet: !include "outlet.yaml"
