@@ -59,10 +59,6 @@ services:
     depends_on:
       akvorado-orchestrator:
         condition: service_healthy
-      redis:
-        condition: service_healthy
-      # clickhouse:
-      #   condition: service_healthy
     command: console http://akvorado-orchestrator:8080
     volumes:
       - akvorado-console-db:/run/akvorado
@@ -102,10 +98,6 @@ services:
     stop_grace_period: 30s
     depends_on:
       akvorado-orchestrator:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
-      clickhouse:
         condition: service_healthy
     command: outlet http://akvorado-orchestrator:8080
     volumes:
