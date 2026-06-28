@@ -51,7 +51,7 @@ clickhousedb:
   database: "netflow"
 
 clickhouse:
-  orchestrator-url: http://orchestrator.akvorado.local:4670
+  orchestrator-url: http://247.16.14.1
   prometheus-endpoint: /metrics
   asns:
     64512: rumah network

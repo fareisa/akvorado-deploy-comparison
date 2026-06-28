@@ -97,7 +97,6 @@ services:
       - traefik.http.routers.akvorado-orchestrator-metrics.observability.accesslogs=false
       # Everything else is exposed to private entrypoint in /api/v0/orchestrator
       - traefik.http.routers.akvorado-orchestrator.entrypoints=public
-      - traefik.http.routers.akvorado-orchestrator.rule=Host(`orchestrator.akvorado.local`)
       - traefik.http.routers.akvorado-orchestrator.rule=PathPrefix(`/api/v0/orchestrator`)
       - traefik.http.services.akvorado-orchestrator.loadbalancer.server.port=8080
       - metrics.enable=true
@@ -174,7 +173,7 @@ services:
   #     - metrics.enable=true
   #     - metrics.port=8080
   #     - metrics.path=/api/v0/metrics
-  
+
   akvorado-outlet:
     extends:
       file: versions.yml
