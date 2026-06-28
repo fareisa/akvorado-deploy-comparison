@@ -21,7 +21,7 @@ core:
     # This is an example. This should be customized depending on how
     # your exporters are named.
     - ClassifySite('wahaha-lab1')
-    - ClassifyRegion("rumah")
+    - ClassifyRegion("kos")
     # - ClassifySiteRegex(Exporter.Name, "^([^-]+)-", "$1")
     # - ClassifyRegion("europe")
     # - ClassifyTenant("acme")
